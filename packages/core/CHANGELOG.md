@@ -1,5 +1,31 @@
 # @mastra/core
 
+## 1.76.0-alpha.3
+
+### Minor Changes
+
+- Added an optional `usageId` field to exported metrics. Every token and cost metric produced from the same model usage shares one `usageId`, so storage can group a model call's metric rows without relying on the span. Other metrics leave it unset. ([#26461](https://github.com/mastra-ai/mastra/pull/26461))
+
+### Patch Changes
+
+- Fixed output-stream processing for durable tool results after a restart or cleanup, including Inngest resumes. Restored processors receive the request context, and concurrent cold calls share the published processor pipeline and state. When the agent resolves but its processor pipeline is missing, processor reconstruction or cold-worker dependency-resolution failures (tools, memory, and workspace) stop the step instead of exposing unprocessed output. Unregistered agents, persistence-only callers, and complete live pipelines retain their dependency-resolution fallback. Fixes #26148. ([#26367](https://github.com/mastra-ai/mastra/pull/26367))
+
+- Fixed Inngest tool resumes after a worker restart or cleanup to emit tool-call-resumed before tool-result, preserving configured display transforms. ([#26370](https://github.com/mastra-ai/mastra/pull/26370))
+
+- Fixed plain agents emitting awaited background tool results twice. ([#26344](https://github.com/mastra-ai/mastra/pull/26344))
+
+- Fixed durable and evented agents so they no longer execute tools excluded by `prepareStep`. ([#26339](https://github.com/mastra-ai/mastra/pull/26339))
+
+- Fixed agents being told to call `updateWorkingMemory` when `workingMemory.agentManaged` is `false`. The tool is not available in that mode, so agents now receive the read-only working memory instruction instead (#25896). ([#26198](https://github.com/mastra-ai/mastra/pull/26198))
+
+- Fixed durable agents forwarding the parent conversation to delegated agents and delegation hooks, including transient request-processor context. Ordinary tools now receive input-only messages consistently with non-durable agents. ([#26365](https://github.com/mastra-ai/mastra/pull/26365))
+
+- Token and cost metrics now carry a `usageId` shared by all rows from the same model call. Usage rolled up from hidden model calls onto a visible span gets a separate `usageId` per call, so each call stays distinguishable even though the rows share a span. ([#26461](https://github.com/mastra-ai/mastra/pull/26461))
+
+- Fixed durable, evented, and Inngest agents leaking one-step prepareStep system message overrides into later model steps. ([#26343](https://github.com/mastra-ai/mastra/pull/26343))
+
+- Preserve the original `TypeError` when plain agents reject invalid `modelSettings.timeout` stream options, matching durable and evented agents ([#26340](https://github.com/mastra-ai/mastra/pull/26340))
+
 ## 1.76.0-alpha.2
 
 ### Minor Changes
